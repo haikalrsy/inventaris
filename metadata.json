@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Inventaris Lab",
+  "description": "Aplikasi manajemen inventaris PC dan laporan kerusakan untuk lab RPL, DKV, Bisnis Retail, AKL, dan MP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
