@@ -15,7 +15,8 @@ import {
   AlertCircle,
   ChevronRight,
   MoreVertical,
-  Check
+  Check,
+  Printer
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -32,6 +33,15 @@ export default function DamageReports() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [labFilter, setLabFilter] = useState<string>('all');
+  const [printingReport, setPrintingReport] = useState<DamageReport | null>(null);
+
+  const handlePrint = (report: DamageReport) => {
+    setPrintingReport(report);
+    setTimeout(() => {
+      window.print();
+      setPrintingReport(null);
+    }, 100);
+  };
   
   // Form state
   const [formData, setFormData] = useState({
@@ -146,10 +156,15 @@ export default function DamageReports() {
   };
 
   const filteredReports = reports.filter(r => {
+    if (!search) return labFilter === 'all' || r.lab === labFilter;
+
+    const searchTerm = search.toLowerCase();
     const matchesSearch = 
-      r.pc_name?.toLowerCase().includes(search.toLowerCase()) || 
-      r.description.toLowerCase().includes(search.toLowerCase()) ||
-      r.reporter_name.toLowerCase().includes(search.toLowerCase());
+      (r.pc_name || '').toLowerCase().includes(searchTerm) || 
+      (r.description || '').toLowerCase().includes(searchTerm) ||
+      (r.reporter_name || '').toLowerCase().includes(searchTerm) ||
+      (r.status || '').toLowerCase().includes(searchTerm);
+      
     const matchesLab = labFilter === 'all' || r.lab === labFilter;
     return matchesSearch && matchesLab;
   });
@@ -163,15 +178,17 @@ export default function DamageReports() {
           </h1>
           <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">Status Logs & Maintenance Protocol</p>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="bg-brand-lime text-black px-8 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(186,255,0,0.2)] hover:scale-105 active:scale-95 transition-all"
-        >
-          LOG ANOMALY [+]
-        </button>
+        <div className="flex gap-4 print:hidden">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-brand-lime text-black px-8 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(186,255,0,0.2)] hover:scale-105 active:scale-95 transition-all"
+          >
+            LOG ANOMALY [+]
+          </button>
+        </div>
       </div>
 
-      <div className="glass-card p-4 rounded-2xl flex flex-col md:flex-row gap-4 border-brand-border/50">
+      <div className="glass-card p-4 rounded-2xl flex flex-col md:flex-row gap-4 border-brand-border/50 print:hidden">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-lime opacity-50" />
           <input 
@@ -257,27 +274,36 @@ export default function DamageReports() {
               </div>
             </div>
 
-            {isAdmin && (
-              <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
-                {report.status === 'Baru' && (
-                  <button 
-                    onClick={() => updateReportStatus(report.id, 'Diproses', report.pc_id)}
-                    className="px-6 py-3 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-xl hover:bg-blue-500/20 transition-all text-[10px] font-black uppercase tracking-widest"
-                  >
-                    DEPLOY TASK
-                  </button>
-                )}
-                {report.status === 'Diproses' && (
-                  <button 
-                    onClick={() => updateReportStatus(report.id, 'Selesai', report.pc_id)}
-                    className="px-6 py-3 bg-brand-lime/10 text-brand-lime border border-brand-lime/20 rounded-xl hover:bg-brand-lime/20 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
-                  >
-                    ARCHIVE LOG
-                    <Check size={14} />
-                  </button>
-                )}
-              </div>
-            )}
+            <div className="flex items-center gap-3 shrink-0 self-end md:self-center print:hidden">
+              <button 
+                onClick={() => handlePrint(report)}
+                className="px-4 py-3 bg-brand-dark/50 text-slate-400 border border-brand-border/50 rounded-xl hover:bg-white/5 transition-all outline-none"
+                title="Print Report"
+              >
+                <Printer size={16} />
+              </button>
+              {isAdmin && (
+                <>
+                  {report.status === 'Baru' && (
+                    <button 
+                      onClick={() => updateReportStatus(report.id, 'Diproses', report.pc_id)}
+                      className="px-6 py-3 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-xl hover:bg-blue-500/20 transition-all text-[10px] font-black uppercase tracking-widest"
+                    >
+                      DEPLOY TASK
+                    </button>
+                  )}
+                  {report.status === 'Diproses' && (
+                    <button 
+                      onClick={() => updateReportStatus(report.id, 'Selesai', report.pc_id)}
+                      className="px-6 py-3 bg-brand-lime/10 text-brand-lime border border-brand-lime/20 rounded-xl hover:bg-brand-lime/20 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                    >
+                      ARCHIVE LOG
+                      <Check size={14} />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </motion.div>
         ))}
 
@@ -374,6 +400,46 @@ export default function DamageReports() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Print View Container */}
+      {printingReport && (
+        <div className="hidden print:block fixed top-0 left-0 w-full bg-white text-black p-8 z-[99999] text-sm font-sans">
+          <div className="border-b-2 border-black pb-4 mb-6 flex justify-between items-end">
+            <div>
+              <h1 className="text-3xl font-black uppercase tracking-widest text-black">DAMAGE REPORT</h1>
+              <p className="font-mono text-xs uppercase tracking-widest text-gray-600 mt-1">Official Maintenance Log</p>
+            </div>
+            <div className="text-right font-mono text-xs uppercase tracking-widest text-black">
+              <p>ID: {printingReport.id.substring(0, 8)}</p>
+              <p>DATE: {format(new Date(printingReport.created_at), 'dd.MM.yyyy HH:mm')}</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-8 mb-8 font-mono text-black">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Hardware Information</p>
+              <p className="font-bold text-lg">{printingReport.pc_name}</p>
+              <p>SECTOR_{printingReport.lab}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Reporter Information</p>
+              <p className="font-bold text-lg">{printingReport.reporter_name}</p>
+            </div>
+          </div>
+
+          <div className="mb-8 font-mono text-black">
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">Anomaly Description</p>
+            <div className="p-4 border-2 border-black rounded-lg min-h-[150px] whitespace-pre-wrap text-base">
+              {printingReport.description}
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center border-t-2 border-black pt-4 font-mono font-bold uppercase tracking-widest text-xs text-black">
+            <p>Current Status: <span className="border border-black px-2 py-1 rounded ml-2">{printingReport.status}</span></p>
+            <p className="text-gray-500">SYSTEM GENERATED REPORT</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

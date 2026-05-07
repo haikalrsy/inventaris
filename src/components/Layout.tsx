@@ -92,7 +92,7 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-brand-dark border-r border-brand-border transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
+          "print:hidden fixed inset-y-0 left-0 z-50 w-64 bg-brand-dark border-r border-brand-border transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0",
           !isSidebarOpen && "-translate-x-full lg:hidden"
         )}
       >
@@ -162,9 +162,9 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 print:overflow-visible">
         {/* Navbar */}
-        <header className="h-16 bg-brand-black/50 backdrop-blur-md border-b border-brand-border flex items-center justify-between px-6 lg:px-8 sticky top-0 z-40">
+        <header className="print:hidden h-16 bg-brand-black/50 backdrop-blur-md border-b border-brand-border flex items-center justify-between px-6 lg:px-8 sticky top-0 z-40">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -196,7 +196,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-brand-black">
+        <main className="flex-1 overflow-y-auto print:overflow-visible p-6 lg:p-8 bg-brand-black">
           <Outlet />
         </main>
       </div>

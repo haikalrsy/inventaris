@@ -13,7 +13,8 @@ import {
   X,
   Check,
   AlertTriangle,
-  Layout
+  Layout,
+  FileText
 } from 'lucide-react';
 
 function cn(...inputs: any[]) {
@@ -155,17 +156,19 @@ export default function Inventory() {
           <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] mt-1">Hardware Telemetry & Asset Management</p>
         </div>
         {isAdmin && (
-          <button 
-            onClick={() => { resetForm(); setIsModalOpen(true); }}
-            className="bg-brand-lime text-black px-8 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(186,255,0,0.2)] hover:scale-105 active:scale-95 transition-all"
-          >
-            Add Unit [+]
-          </button>
+          <div className="flex gap-4 print:hidden">
+            <button 
+              onClick={() => { resetForm(); setIsModalOpen(true); }}
+              className="bg-brand-lime text-black px-8 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(186,255,0,0.2)] hover:scale-105 active:scale-95 transition-all"
+            >
+              Add Unit [+]
+            </button>
+          </div>
         )}
       </div>
 
       {/* Filters */}
-      <div className="glass-card p-4 rounded-2xl flex flex-col md:flex-row gap-4 border-brand-border/50">
+      <div className="glass-card p-4 rounded-2xl flex flex-col md:flex-row gap-4 border-brand-border/50 print:hidden">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-lime opacity-50" />
           <input 
@@ -232,7 +235,7 @@ export default function Inventory() {
                   <Monitor size={18} />
                 </div>
                 {isAdmin && (
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 print:hidden">
                     <button 
                       onClick={() => openEditModal(pc)}
                       className="p-2 text-slate-500 hover:text-brand-lime hover:bg-brand-lime/10 rounded-lg transition-all"

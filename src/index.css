@@ -77,3 +77,37 @@
 .neon-glow {
   filter: drop-shadow(0 0 10px rgba(186, 255, 0, 0.4));
 }
+
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+  
+  body, main, .min-h-screen, .bg-brand-black {
+    background-color: white !important;
+    background-image: none !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .glass-card, .bg-brand-card {
+    border: 1px solid #ddd !important;
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  
+  h1, h2, h3, p, span, div {
+    color: black !important;
+    text-shadow: none !important;
+  }
+
+  .scanline {
+    display: none !important;
+  }
+}
